@@ -23,6 +23,12 @@ jobs:
           mkdir -p build/search-tests
           javac -encoding UTF-8 -d build/search-tests app/src/main/java/br/com/pedrozulim/oab/ScheduleSearch.java tests/ScheduleSearchTest.java
           java -cp build/search-tests br.com.pedrozulim.oab.ScheduleSearchTest
+      - name: Test structured study guides
+        run: |
+          mkdir -p build/guide-fixtures build/guide-tests
+          python3 -c "import json,pathlib; days=json.loads(pathlib.Path('app/src/main/assets/schedule.json').read_text())['days']; [pathlib.Path('build/guide-fixtures',str(d['day'])+'.txt').write_text(d['details']) for d in days]"
+          javac -encoding UTF-8 -d build/guide-tests app/src/main/java/br/com/pedrozulim/oab/StudyGuide.java tests/StudyGuideTest.java
+          java -cp build/guide-tests br.com.pedrozulim.oab.StudyGuideTest build/guide-fixtures
       - run: sh ./gradlew assembleDebug lintDebug
       - name: Test reminder recurrence
         run: |

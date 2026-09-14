@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
     private String tab="Início", filter="";
     private boolean pending=false;
     private int selected=0, planWeek=0;
+    private boolean guideOpen=false;
     private final int background=Color.rgb(247,246,252), soft=Color.rgb(237,232,251), border=Color.rgb(231,226,245), green=Color.rgb(30,115,77);
     private int limit(){return prefs.getBoolean("extension",false)?126:120;}
     private LocalDate start(){return LocalDate.parse(prefs.getString("start",LocalDate.now().toString()));}
@@ -38,9 +39,10 @@ public class MainActivity extends Activity {
         catch(Exception e){TextView error=new TextView(this);error.setText("Não foi possível abrir o cronograma. Reinstale o aplicativo.");setContentView(error);return;}
         if(state!=null){tab=state.getString("tab","Início");selected=state.getInt("selected",0);planWeek=state.getInt("planWeek",0);filter=state.getString("filter","");pending=state.getBoolean("pending",false);}
         else openStudy(getIntent());
+        if(state!=null)guideOpen=state.getBoolean("guideOpen",false);
         render();
     }
-    private void openStudy(Intent intent){int n=intent.getIntExtra("study_day",0);if(n>=1&&n<=limit()){tab="Início";selected=n;}}
+    private void openStudy(Intent intent){int n=intent.getIntExtra("study_day",0);if(n>=1&&n<=limit()){tab="Início";selected=n;guideOpen=false;}}
     @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);openStudy(intent);if(days!=null)render();}
     @Override protected void onResume(){super.onResume();if(days!=null){Reminders.schedule(this);if(selected==0)render();}}
     @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] results){super.onRequestPermissionsResult(requestCode,permissions,results);if(requestCode==42){Reminders.schedule(this);render();}}
@@ -51,7 +53,7 @@ public class MainActivity extends Activity {
             return new String(out.toByteArray(),StandardCharsets.UTF_8);
         }
     }
-    @Override public void onSaveInstanceState(Bundle b){super.onSaveInstanceState(b);b.putString("tab",tab);b.putInt("selected",selected);b.putInt("planWeek",planWeek);b.putString("filter",filter);b.putBoolean("pending",pending);}
+    @Override public void onSaveInstanceState(Bundle b){super.onSaveInstanceState(b);b.putString("tab",tab);b.putInt("selected",selected);b.putInt("planWeek",planWeek);b.putString("filter",filter);b.putBoolean("pending",pending);b.putBoolean("guideOpen",guideOpen);}
     private LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);return l;}
     private GradientDrawable surface(int color,int radius){
         GradientDrawable bg=new GradientDrawable();bg.setColor(color);bg.setCornerRadius(dp(radius));bg.setStroke(dp(1),border);return bg;
@@ -110,7 +112,7 @@ public class MainActivity extends Activity {
         int[] icons={R.drawable.ic_home,R.drawable.ic_calendar,R.drawable.ic_progress,R.drawable.ic_settings};
         for(int i=0;i<labels.length;i++){
             final String label=labels[i];boolean active=tab.equals(label)||(tab.equals("Lembretes")&&label.equals("Ajustes"));
-            Button item=button(label,()->{tab=label;selected=0;render();});item.setTextSize(11);item.setPadding(dp(2),dp(8),dp(2),dp(8));
+            Button item=button(label,()->{tab=label;selected=0;guideOpen=false;render();});item.setTextSize(11);item.setPadding(dp(2),dp(8),dp(2),dp(8));
             item.setTextColor(active?purple:muted);item.setSelected(active);
             item.setBackground(new android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(0x226D4BD1),surface(active?soft:Color.WHITE,14),null));
             android.graphics.drawable.Drawable icon=getDrawable(icons[i]).mutate();icon.setTint(active?purple:muted);icon.setBounds(0,0,dp(22),dp(22));
@@ -118,7 +120,7 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(3),0,dp(3),0);nav.addView(item,lp);
         }
         root.addView(nav);setContentView(root);root.requestApplyInsets();
-        if(selected>0){detail(selected);return;}
+        if(selected>0){if(guideOpen)guide(selected);else detail(selected);return;}
         switch(tab){case "Plano":plan();break;case "Progresso":progress();break;case "Ajustes":settings();break;case "Lembretes":reminderSettings();break;default:home();}
     }
     private boolean done(int n){return prefs.getBoolean(key(n,"done"),false);}
@@ -155,7 +157,7 @@ public class MainActivity extends Activity {
         LinearLayout row=new LinearLayout(this);int first=((current-1)/7)*7+1;
         for(int i=first;i<=Math.min(first+6,limit());i++){
             final int n=i;String weekday=start().plusDays(i-1).format(DateTimeFormatter.ofPattern("EEE",new java.util.Locale("pt","BR")));
-            Button b=button(weekday+"\\n"+i+(done(i)?"  ✓":""),()->{selected=n;render();});
+            Button b=button(weekday+"\n"+i+(done(i)?"  ✓":""),()->{selected=n;render();});
             b.setContentDescription("Dia "+i+", "+title(day(i))+(done(i)?", concluído":""));
             b.setTextColor(done(i)?green:purple);if(i==today())b.setBackground(surface(soft,16));else b.setBackground(surface(Color.WHITE,16));
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(76),-2);lp.setMargins(0,dp(4),dp(8),dp(4));row.addView(b,lp);
@@ -208,7 +210,7 @@ public class MainActivity extends Activity {
     }
     private void dayCard(int n){
         JSONObject d=day(n);LinearLayout c=card();
-        TextView banner=bold((today()>=1&&today()<=limit()?"Seu estudo de hoje":"Retome seu plano")+"\\nDia "+n+" · Semana "+d.optInt("week"),18,Color.WHITE);
+        TextView banner=bold((today()>=1&&today()<=limit()?"Seu estudo de hoje":"Retome seu plano")+"\nDia "+n+" · Semana "+d.optInt("week"),18,Color.WHITE);
         GradientDrawable gradient=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{purple,Color.rgb(74,47,163)});
         gradient.setCornerRadius(dp(14));banner.setBackground(gradient);banner.setPadding(dp(16),dp(16),dp(16),dp(16));c.addView(banner);
         c.addView(text(kindLabel(d)+" · "+(done(n)?"Concluído":"A fazer"),13,done(n)?green:purple));
@@ -250,6 +252,10 @@ public class MainActivity extends Activity {
         JSONObject d=day(n);body.addView(button("‹ Voltar",()->{selected=0;render();}));
         body.addView(text("DIA "+n+" · SEMANA "+d.optInt("week")+" · "+date(n),12,purple));heading(title(d));
         LinearLayout summary=card();summary.addView(text(kindLabel(d),13,purple));summary.addView(text(d.optString("summary"),17,ink));
+        if(!d.optString("details").isEmpty()){
+            summary.addView(primary("Abrir roteiro detalhado  →",()->{guideOpen=true;render();}));
+            summary.addView(text("Temas, etapas de estudo e referências do dia.",14,muted));
+        }else summary.addView(text("Este dia tem apenas o resumo do calendário. O roteiro semanal não foi disponibilizado.",14,muted));
         boolean rest=d.optString("kind").equals("rest")||d.optString("kind").equals("exam");
         if(!rest){
             LinearLayout checklist=card();checklist.addView(bold("Meu checklist",18,ink));
@@ -274,12 +280,6 @@ public class MainActivity extends Activity {
         notes.setText(prefs.getString(key(n,"notes"),""));
         notes.addTextChangedListener(watcher(()->prefs.edit().putString(key(n,"notes"),notes.getText().toString()).apply()));notebook.addView(notes);
         notebook.addView(text("Salvo automaticamente neste aparelho",12,muted));
-        if(!d.optString("details").isEmpty())body.addView(button("Consultar roteiro detalhado",()->{
-            TextView t=text(d.optString("details"),16,ink);t.setPadding(dp(22),dp(16),dp(22),dp(16));t.setTextIsSelectable(true);
-            ScrollView scroll=new ScrollView(this);scroll.addView(t);
-            new AlertDialog.Builder(this).setTitle("Roteiro · dia "+n).setView(scroll).setPositiveButton("Fechar",null).show();
-        }));
-        else body.addView(text("Este dia tem apenas o resumo do calendário. O roteiro semanal não foi disponibilizado.",14,muted));
         Button finished=primary(done(n)?"Concluído · reabrir dia":"Concluir dia",()->{});
         finished.setOnClickListener(v->{
             boolean complete=!done(n);prefs.edit().putBoolean(key(n,"done"),complete).apply();Reminders.schedule(this);
@@ -287,6 +287,63 @@ public class MainActivity extends Activity {
             Toast.makeText(this,complete?"Dia concluído. Bom trabalho!":"Dia reaberto.",Toast.LENGTH_SHORT).show();
         });body.addView(finished);
         if(n<limit())body.addView(button("Próximo dia  →",()->{selected=n+1;render();}));
+    }
+    private void guide(int n){
+        JSONObject d=day(n);
+        body.addView(button("‹ Voltar ao estudo",()->{guideOpen=false;render();}));
+        body.addView(text("DIA "+n+" · SEMANA "+d.optInt("week"),12,purple));
+        heading("Roteiro detalhado");
+        body.addView(text(title(d),18,ink));
+        JSONObject next=day(n+1);
+        String continuation=next!=null&&d.optString("detailSource").equals(next.optString("detailSource"))?next.optString("details"):"";
+        java.util.List<StudyGuide.Topic> topics=StudyGuide.parse(d.optString("details"),n,continuation);
+        body.addView(text("Leia as orientações e siga as etapas de cada tema. Registre seu progresso na tela de estudo.",15,muted));
+        LinearLayout index=card();index.addView(bold("Neste roteiro",18,ink));
+        java.util.List<View> anchors=new java.util.ArrayList<>();
+        for(int i=0;i<topics.size();i++){
+            final int target=i;
+            index.addView(button((i+1)+" · "+topics.get(i).title,()->{
+                View anchor=anchors.get(target);
+                ((ScrollView)body.getParent()).smoothScrollTo(0,anchor.getTop());
+                anchor.sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent.TYPE_VIEW_FOCUSED);
+            }));
+        }
+        for(int i=0;i<topics.size();i++){
+            StudyGuide.Topic topic=topics.get(i);
+            TextView title=bold((topics.size()>1?"TEMA "+(i+1)+"\n":"")+topic.title,20,purple);
+            title.setPadding(dp(2),dp(24),dp(2),dp(8));
+            if(android.os.Build.VERSION.SDK_INT>=28)title.setAccessibilityHeading(true);
+            body.addView(title);anchors.add(title);
+            for(StudyGuide.Section part:topic.sections){
+                if(part.content.isEmpty())continue;
+                LinearLayout c=card();
+                if(part.secondary)fold(c,part.title,part.content);
+                else {
+                    TextView label=bold(part.title,18,ink);
+                    if(android.os.Build.VERSION.SDK_INT>=28)label.setAccessibilityHeading(true);
+                    c.addView(label);guideText(c,part.content);
+                }
+            }
+        }
+        body.addView(text("Fonte: roteiro semanal do Método VDE · OAB 46. As referências à plataforma e aos livros pertencem ao material de origem.",12,muted));
+        LinearLayout original=card();fold(original,"Texto original do material",d.optString("details"));
+        body.addView(primary("Voltar ao checklist e às anotações",()->{guideOpen=false;render();}));
+    }
+    private void guideText(LinearLayout parent,String content){
+        TextView value=text(content,16,ink);value.setTextIsSelectable(true);value.setLineSpacing(dp(6),1);
+        parent.addView(value);
+    }
+    private void fold(LinearLayout parent,String label,String content){
+        LinearLayout value=column();value.setVisibility(View.GONE);
+        Button toggle=button(label+"  +",()->{});
+        toggle.setContentDescription(label+", recolhido");
+        toggle.setOnClickListener(v->{
+            boolean open=value.getVisibility()!=View.VISIBLE;
+            if(open&&value.getChildCount()==0)guideText(value,content);
+            value.setVisibility(open?View.VISIBLE:View.GONE);
+            toggle.setText(label+(open?"  −":"  +"));
+            toggle.setContentDescription(label+(open?", expandido":", recolhido"));
+        });parent.addView(toggle);parent.addView(value);
     }
     private EditText number(int n,String field,String label){EditText e=new EditText(this);styleInput(e);e.setInputType(InputType.TYPE_CLASS_NUMBER);e.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});e.setHint(label);int value=prefs.getInt(key(n,field),0);if(value>0)e.setText(String.valueOf(value));e.setContentDescription(label);e.addTextChangedListener(watcher(()->{String s=e.getText().toString();prefs.edit().putInt(key(n,field),s.isEmpty()?0:Integer.parseInt(s)).apply();}));return e;}
     private void progress(){
@@ -330,5 +387,5 @@ public class MainActivity extends Activity {
         LinearLayout storage=card();storage.addView(bold("Seus registros",18,ink));
         storage.addView(text("Tudo é salvo automaticamente neste aparelho, sem login. Desinstalar o app apaga o progresso.",15,muted));
     }
-    @Override public void onBackPressed(){if(selected>0){selected=0;render();}else if(!tab.equals("Início")){tab="Início";render();}else super.onBackPressed();}
+    @Override public void onBackPressed(){if(guideOpen){guideOpen=false;render();}else if(selected>0){selected=0;render();}else if(!tab.equals("Início")){tab="Início";render();}else super.onBackPressed();}
 }

@@ -22,7 +22,7 @@ Fonte: calendário e PDFs semanais do Método VDE, edição OAB 46, fornecidos p
 3. A semana 5 tem “180 dias” no cabeçalho; seu conteúdo e numeração dos dias foram preservados.
 4. As pausas de Natal, fim de ano e Carnaval mantêm sua posição no plano ao mudar a data inicial. Não são feriados calculados para a nova data.
 5. O checklist é um recurso do aplicativo. A conclusão do dia é manual e independente das quatro etapas, pois há revisões, pausas e simulados.
-6. Os roteiros são extrações textuais dos PDFs, não uma reprodução de sua diagramação. Referências aos livros/plataforma não incluem esses materiais nem um banco de questões.
+6. Os roteiros são organizados a partir das extrações dos PDFs em uma tela com índice de temas, etapas de estudo e referências recolhíveis. O texto original continua disponível para consulta. Referências aos livros/plataforma não incluem esses materiais nem um banco de questões.
 7. O código está sob a licença do repositório. A licença do código não se estende ao material de terceiros presente em `schedule.json`.
 
 ## Gerar o APK no GitHub
@@ -73,6 +73,6 @@ O importador usa coordenadas das células para evitar a ordem incorreta da extra
 
 ## Limitações da primeira versão
 
-Ainda não há timer, backup/exportação, sincronização ou banco de questões. Desinstalar o aplicativo apaga o progresso. Os roteiros extensos usam uma visualização textual; uma próxima melhoria é separar metas e referências por tema. Testar em aparelho antes do uso diário, especialmente teclado, botão Voltar, fontes ampliadas e retomada do app.
+Ainda não há timer, backup/exportação, sincronização ou banco de questões. Desinstalar o aplicativo apaga o progresso. A organização dos roteiros depende dos marcadores do material fornecido; dias de revisão, pausa e simulado têm orientações próprias. Testar em aparelho antes do uso diário, especialmente teclado, botão Voltar, fontes ampliadas e retomada do app.
 
 Os lembretes dependem da permissão de notificações. No Android 12 ou superior, a tela oferece acesso à permissão de alarmes e lembretes para horários exatos; sem ela, o agendamento é aproximado. Os horários usam o fuso local, são recuperados após reinício, atualização do app ou alteração do relógio/fuso, e só notificam durante o período do plano e em dias ainda não concluídos. Tocar na notificação abre o dia correspondente. Após forçar a parada do app nas configurações do Android, abra-o novamente para recuperar o agendamento. Restrições de bateria do fabricante podem afetar a entrega.

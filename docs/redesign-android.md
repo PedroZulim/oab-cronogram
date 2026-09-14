@@ -11,6 +11,8 @@ O APK implementa o visual com Views Android em Java. O protótipo web não é ca
 - Início com progresso, estudo do dia, faixa semanal, pendências e lembretes reais.
 - Plano com seleção de semana, busca global e filtro de pendências.
 - Estudo com cards para checklist, desempenho e anotações; conclusão manual reversível.
+- Roteiro em tela própria, acessível pelo resumo do estudo: índice com atalhos aos temas, cartões por etapa e referências/histórico recolhíveis. O botão Voltar retorna ao estudo; a tela de roteiro é mantida ao recriar a atividade.
+- A apresentação elimina cabeçalhos de página e campos vazios do PDF, recompõe linhas e recupera continuações antes do cabeçalho do dia seguinte. O texto original permanece consultável e o arquivo de dados é preservado.
 - Progresso com indicadores e barras semanais; ajustes agrupados.
 
 ## Compatibilidade dos dados

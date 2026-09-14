@@ -30,19 +30,27 @@ O workflow `.github/workflows/android.yml` roda testes de dados, `assembleDebug`
 
 ## Compilar localmente
 
-Instale JDK 17, Android SDK 35 e Gradle 8.11.1. O projeto usa Android Gradle Plugin 8.9.2. Se usar Android Studio, configure o Gradle local ou gere o wrapper antes de importar:
+Instale JDK 17 e Android SDK 35. O projeto usa Android Gradle Plugin 8.9.2 e inclui o Gradle Wrapper 8.11.1. No Windows, use `gradlew.bat`; no Linux/macOS, use `sh ./gradlew`:
 
 ```sh
-gradle wrapper --gradle-version 8.11.1
+./gradlew.bat --version
 ```
 
 Configure `ANDROID_HOME` para o SDK ou crie `local.properties` com `sdk.dir` apontando para sua instalação. Depois:
 
 ```sh
-gradle assembleDebug lintDebug
+./gradlew.bat assembleDebug lintDebug
 ```
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`.
+
+## Arquivos para o GitHub
+
+Versione o código em `app/src/` (incluindo `assets/schedule.json`, necessário para funcionar offline), os arquivos de configuração Gradle, `gradlew`, `gradlew.bat`, `gradle/wrapper/gradle-wrapper.jar`, `gradle/wrapper/gradle-wrapper.properties`, testes, scripts, workflow, README, licença e `.gitignore`.
+
+O `.gitignore` exclui caches (`.gradle/`), configurações locais do Android Studio (`.idea/`, `*.iml`), `local.properties`, pastas `build/`, APKs/AABs, chaves de assinatura e ambientes/cache Python. O diretório `gradle/` deve ser versionado; ele é diferente do cache `.gradle/`.
+
+A busca aceita `1`, `Dia 1` e `DIA 01` para localizar exatamente o dia 1. Termos são procurados no título e no resumo, sem diferenciar maiúsculas ou acentos. O filtro de pendências e a opção de extensão continuam limitando os resultados.
 
 Compatibilidade: https://developer.android.com/build/releases/agp-8-9-0-release-notes
 

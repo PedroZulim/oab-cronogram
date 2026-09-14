@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
         }
     }
     @Override public void onSaveInstanceState(Bundle b){super.onSaveInstanceState(b);b.putString("tab",tab);b.putInt("selected",selected);}
-    private LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(1);return l;}
+    private LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);return l;}
     private TextView text(String value,int size,int color){TextView v=new TextView(this);v.setText(value);v.setTextSize(size);v.setTextColor(color);v.setPadding(0,dp(5),0,dp(5));v.setLineSpacing(dp(3),1);return v;}
     private void heading(String s){TextView v=text(s,28,ink);v.setTypeface(null,Typeface.BOLD);body.addView(v);}
     private Button button(String s,Runnable action){Button b=new Button(this);b.setText(s);b.setAllCaps(false);b.setTextColor(purple);b.setOnClickListener(v->action.run());return b;}
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
         EditText search=new EditText(this);search.setSingleLine(true);search.setHint("Buscar no cronograma");search.setText(filter);body.addView(search);
         CheckBox check=new CheckBox(this);check.setText("Mostrar apenas pendências");check.setChecked(pending);body.addView(check);
         LinearLayout list=column();body.addView(list);
-        Runnable refresh=()->{list.removeAllViews();int week=0;for(int i=1;i<=limit();i++){JSONObject d=day(i);if(pending&&done(i))continue;if(!d.optString("summary").toLowerCase(java.util.Locale.ROOT).contains(filter.toLowerCase(java.util.Locale.ROOT))&&!String.valueOf(i).equals(filter))continue;int n=i;if(week!=d.optInt("week")){week=d.optInt("week");list.addView(text("SEMANA "+week,16,purple));}list.addView(button((done(i)?"✓ ":"")+"Dia "+i+" · "+title(d)+"\n"+date(i),()->{selected=n;render();}));}if(list.getChildCount()==0)list.addView(text("Nenhum dia encontrado.",16,muted));};
+        Runnable refresh=()->{list.removeAllViews();int week=0;for(int i=1;i<=limit();i++){JSONObject d=day(i);if(pending&&done(i))continue;if(!ScheduleSearch.matches(i,title(d),d.optString("summary"),filter))continue;int n=i;if(week!=d.optInt("week")){week=d.optInt("week");list.addView(text("SEMANA "+week,16,purple));}list.addView(button((done(i)?"✓ ":"")+"Dia "+i+" · "+title(d)+"\n"+date(i),()->{selected=n;render();}));}if(list.getChildCount()==0)list.addView(text("Nenhum dia encontrado.",16,muted));};
         search.addTextChangedListener(watcher(()->{filter=search.getText().toString();refresh.run();}));check.setOnCheckedChangeListener((v,b)->{pending=b;refresh.run();});refresh.run();
     }
     private TextWatcher watcher(Runnable r){return new TextWatcher(){public void beforeTextChanged(CharSequence s,int a,int c,int f){}public void onTextChanged(CharSequence s,int a,int b,int c){r.run();}public void afterTextChanged(Editable e){}};}

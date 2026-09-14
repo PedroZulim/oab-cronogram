@@ -17,10 +17,13 @@ jobs:
           java-version: '17'
       - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.11.1'
       - run: python3 -m unittest discover -s tests
-      - run: gradle assembleDebug lintDebug
+      - name: Test schedule search
+        run: |
+          mkdir -p build/search-tests
+          javac -encoding UTF-8 -d build/search-tests app/src/main/java/br/com/pedrozulim/oab/ScheduleSearch.java tests/ScheduleSearchTest.java
+          java -cp build/search-tests br.com.pedrozulim.oab.ScheduleSearchTest
+      - run: sh ./gradlew assembleDebug lintDebug
       - uses: actions/upload-artifact@v4
         with:
           name: oab-120-android-debug

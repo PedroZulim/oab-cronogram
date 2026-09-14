@@ -24,6 +24,11 @@ jobs:
           javac -encoding UTF-8 -d build/search-tests app/src/main/java/br/com/pedrozulim/oab/ScheduleSearch.java tests/ScheduleSearchTest.java
           java -cp build/search-tests br.com.pedrozulim.oab.ScheduleSearchTest
       - run: sh ./gradlew assembleDebug lintDebug
+      - name: Test reminder recurrence
+        run: |
+          mkdir -p build/reminder-tests
+          javac -encoding UTF-8 -d build/reminder-tests app/src/main/java/br/com/pedrozulim/oab/ReminderTime.java tests/ReminderTimeTest.java
+          java -cp build/reminder-tests br.com.pedrozulim.oab.ReminderTimeTest
       - uses: actions/upload-artifact@v4
         with:
           name: oab-120-android-debug

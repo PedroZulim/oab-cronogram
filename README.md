@@ -4,7 +4,8 @@ Primeira versão de um aplicativo Android nativo, em Java, para acompanhar o cro
 
 ## O que está implementado
 
-- Hoje: conteúdo do dia e progresso geral.
+- Início: estudo do dia, progresso geral, próximo horário de lembrete e atalhos para plano e pendências.
+- Lembretes: até três horários diários configuráveis em Início → Configurar horários ou Ajustes → Lembretes e horários, desativados por padrão.
 - Plano: navegação por semana, busca por tema ou número do dia e filtro de pendências.
 - Dia: resumo, consulta ao roteiro detalhado disponível, checklist de teoria/revisão, questões, lei seca e erros.
 - Registro de acertos, erros, anotações e conclusão por dia.
@@ -72,4 +73,6 @@ O importador usa coordenadas das células para evitar a ordem incorreta da extra
 
 ## Limitações da primeira versão
 
-Ainda não há notificações, timer, backup/exportação, sincronização ou banco de questões. Desinstalar o aplicativo apaga o progresso. Os roteiros extensos usam uma visualização textual; uma próxima melhoria é separar metas e referências por tema. Testar em aparelho antes do uso diário, especialmente teclado, botão Voltar, fontes ampliadas e retomada do app.
+Ainda não há timer, backup/exportação, sincronização ou banco de questões. Desinstalar o aplicativo apaga o progresso. Os roteiros extensos usam uma visualização textual; uma próxima melhoria é separar metas e referências por tema. Testar em aparelho antes do uso diário, especialmente teclado, botão Voltar, fontes ampliadas e retomada do app.
+
+Os lembretes dependem da permissão de notificações. No Android 12 ou superior, a tela oferece acesso à permissão de alarmes e lembretes para horários exatos; sem ela, o agendamento é aproximado. Os horários usam o fuso local, são recuperados após reinício, atualização do app ou alteração do relógio/fuso, e só notificam durante o período do plano e em dias ainda não concluídos. Tocar na notificação abre o dia correspondente. Após forçar a parada do app nas configurações do Android, abra-o novamente para recuperar o agendamento. Restrições de bateria do fabricante podem afetar a entrega.
